@@ -1,4 +1,4 @@
-# NILRT SNAC tool
+# NILRT SNAC Tool
 
 The NI LinuxRT Secured, Network-Attached Configuration (SNAC) tool is a utility for admins to put a NILRT system into the SNAC configuration.
 
@@ -32,9 +32,9 @@ This tool...
 On a deployed NILRT system, in runmode...
 
 ```bash
-mkdir -p /usr/local/src/nilrt-snac
-git clone https://github.com/amstewart/nilrt-snac /usr/local/src/nilrt-snac
-cd /usr/local/src/nilrt-snac
+mkdir -p /usr/local/src
+wget 'https://github.com/amstewart/nilrt-snac/archive/refs/heads/master.tar.gz' -O - | tar xzf - -C /usr/local/src
+cd /usr/local/src/nilrt-snac*
 make install
 ```
 
