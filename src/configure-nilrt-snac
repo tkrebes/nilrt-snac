@@ -140,65 +140,8 @@ remove_niauth() {
 	trap - EXIT
 }
 
-## CLI PARSING
-usage() {
-	cat <<EOF
-$(basename ${BASH_SOURCE}) [--help] [--verbose] \\
-    # TODO: argument docs here
-
-# TODO: Program Description here
-
-# Options
--h, --help
-    Print this usage information and exit.
--v, --verbose
-    Print all log channels during execution.
-
-# Positional Arguments
-
-# Environmentals
-
-# Returns
-EOF
-}
-
-
-positionals=()
-verbose=false
-
-while [ $# -ge 1 ]; do case "$1" in
-	-h|--help)
-		usage
-		exit 0
-		;;
-	-v|--verbose)
-		verbose=true
-		shift
-		;;
-	-*|--*)
-		log ERROR "Invalid or unknown option \"$1\"."
-		exit 2
-		;;
-	*)
-		positionals+=($1)
-		shift
-		;;
-esac; done
-
-# TODO: Set minimum number of positional arguments here
-if [ ${#positionals[@]} -lt 0 ]; then
-	log ERROR "Missing required positional arguments.";
-	usage
-	exit 2
-fi
-# TODO: Parse positionals here
-
 
 ## MAIN
-# TODO: remove after alpha testing
-log WARNING '!! THIS TOOL IS IN-DEVELOPMENT AND APPROPRIATE ONLY FOR DEVELOPER TESTING !!'
-log WARNING '!! Running this tool will irreversibly alter the state of your system.    !!'
-
 # runtime environment safety checks
 check_euid_root
 check_nilrt
@@ -207,7 +150,7 @@ check_runmode
 
 WORKSPACE=$(mktemp -d --suffix=nilrt-snac)
 trap "test -e ${WORKSPACE} && rm -rfv ${WORKSPACE}" EXIT
-pushd ${WORKSPACE}
+cd ${WORKSPACE}
 
 configure_opkg
 
@@ -232,8 +175,4 @@ install_cryptsetup
 
 configure_ntp
 
-popd
-echo ""  # Blank line
-echo "!! A reboot is now required to affect your system configuration. !!"
-echo "!! Login with user 'root' and no password.                       !!"
 exit 0
