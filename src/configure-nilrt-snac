@@ -147,6 +147,7 @@ check_euid_root
 check_nilrt
 check_runmode
 
+syslog notice SNAC configuration utility activated.
 
 WORKSPACE=$(mktemp -d --suffix=nilrt-snac)
 trap "test -e ${WORKSPACE} && rm -rfv ${WORKSPACE}" EXIT
@@ -175,4 +176,5 @@ install_cryptsetup
 
 configure_ntp
 
+syslog notice SNAC configuration completed.
 exit 0

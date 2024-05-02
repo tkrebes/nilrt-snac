@@ -19,3 +19,17 @@ log() {
 	fi
 }
 export -f log
+
+# Log a message to the system logger.
+# $1 : The syslog level (recommend: notice)
+# $2 : The message to log
+syslog() {
+	local level=$1
+	local msg=${@:2}
+	logger \
+		--priority user.${level} \
+		--id=$$ \
+		--tag "nilrt-snac" \
+		${msg}
+}
+export -f syslog
