@@ -7,7 +7,7 @@ SHELL = /bin/sh
 
 ## VARIABLES
 
-project = nilrt-snac
+pkgname = nilrt-snac
 
 # GNU directories
 prefix ?= /usr/local
@@ -17,8 +17,8 @@ bindir ?= $(exec_prefix)/bin
 datarootdir ?= $(prefix)/share
 
 datadir ?= $(datarootdir)
-docdir ?= $(datarootdir)/doc/$(project)
-libdir ?= $(exec_prefix)/lib/$(project)
+docdir ?= $(datarootdir)/doc
+libdir ?= $(exec_prefix)/lib
 sbindir ?= $(exec_prefix)/sbin
 
 SRC_FILES = \
@@ -39,18 +39,18 @@ install : $(SRC_FILES) LICENSE README.md
 	install -o 0 -g 0 --mode=0755 -t "$(DESTDIR)$(sbindir)" \
 		src/nilrt-snac
 
-	mkdir -p $(DESTDIR)$(libdir)
-	install --mode=0444 -t "$(DESTDIR)$(libdir)" \
+	mkdir -p $(DESTDIR)$(libdir)/$(pkgname)
+	install --mode=0444 -t "$(DESTDIR)$(libdir)/$(pkgname)" \
 		src/configure-nilrt-snac \
 		src/util.sh \
 
-	mkdir -p $(DESTDIR)$(docdir)
-	install --mode=0444 -t "$(DESTDIR)$(docdir)" \
+	mkdir -p $(DESTDIR)$(docdir)/$(pkgname)
+	install --mode=0444 -t "$(DESTDIR)$(docdir)/$(pkgname)" \
 		LICENSE \
 		README.md
 
 
 uninstall :
 	rm -vf $(DESTDIR)$(sbindir)/nilrt-snac
-	rm -rvf $(DESTDIR)$(libdir)
-	rm -rvf $(DESTDIR)$(docdir)
+	rm -rvf $(DESTDIR)$(libdir)/$(pkgname)
+	rm -rvf $(DESTDIR)$(docdir)/$(pkgname)
