@@ -40,7 +40,7 @@ install : $(SRC_FILES) LICENSE README.md
 		src/nilrt-snac
 
 	mkdir -p $(DESTDIR)$(libdir)
-	install --mode=0554 -t "$(DESTDIR)$(libdir)" \
+	install --mode=0444 -t "$(DESTDIR)$(libdir)" \
 		src/configure-nilrt-snac \
 		src/util.sh \
 
