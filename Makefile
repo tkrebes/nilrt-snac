@@ -3,7 +3,7 @@
 .DEFAULT_GOAL := all
 
 .PHONY : all install uninstall
-
+SHELL = /bin/sh
 
 ## VARIABLES
 
@@ -23,24 +23,34 @@ sbindir ?= $(exec_prefix)/sbin
 
 SRC_FILES = \
 	src/configure-nilrt-snac \
+	src/nilrt-snac \
+	src/util.sh \
 
 
 ## PHONY TARGETS
 
 all :
+	echo $(srcdir)
 	@echo "Nothing to build. All source files are architecture-independent."
 
 
 install : $(SRC_FILES) LICENSE README.md
-	mkdir -p $(sbindir)
-	install -o 0 -g 0 --mode=0755 src/configure-nilrt-snac $(sbindir)
+	mkdir -p $(DESTDIR)$(sbindir)
+	install -o 0 -g 0 --mode=0755 -t "$(DESTDIR)$(sbindir)" \
+		src/nilrt-snac
 
-	mkdir -p $(docdir)
-	install --mode=0444 -t "$(docdir)" \
+	mkdir -p $(DESTDIR)$(libdir)
+	install --mode=0554 -t "$(DESTDIR)$(libdir)" \
+		src/configure-nilrt-snac \
+		src/util.sh \
+
+	mkdir -p $(DESTDIR)$(docdir)
+	install --mode=0444 -t "$(DESTDIR)$(docdir)" \
 		LICENSE \
 		README.md
 
 
 uninstall :
-	rm -vf $(sbindir)/configure-nilrt-snac
-	rm -rvf $(docdir)
+	rm -vf $(DESTDIR)$(sbindir)/nilrt-snac
+	rm -rvf $(DESTDIR)$(libdir)
+	rm -rvf $(DESTDIR)$(docdir)

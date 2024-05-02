@@ -57,7 +57,7 @@ make uninstall
 After installation, the tool should be available in your PATH.
 
 ```bash
-configure-nilrt-snac
+nilrt-snac configure
 ```
 
 After the script completes successfully, you will be instructed to reboot your system. Reboot into runmode and login using `root` with no password.

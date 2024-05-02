@@ -1,0 +1,88 @@
+#!/bin/bash
+# SPDX-License-Identifier: BSD-3-Clause
+set -euo pipefail
+
+
+## CONSTANTS
+SCRIPT_ROOT=$(realpath $(dirname ${BASH_SOURCE}))
+
+## IMPORTS
+source "${SCRIPT_ROOT}/../lib/nilrt-snac/util.sh"
+
+## FUNCTIONS
+print_version() {
+	cat <<-EOF
+	nilrt-snac 0.1
+	Copyright (C) 2024 NI (Emerson Electric)
+	License BSD-3-Clause: BSD 3-Clause "Revised" License <https://spdx.org/licenses/BSD-3-Clause.html
+	This is free software: you are free to change and redistribute it.
+	There is NO WARRANTY, to the extent permitted by law.
+	EOF
+}
+
+
+## CLI PARSING
+usage() {
+	cat <<EOF
+$(basename ${BASH_SOURCE}) [--help] [--version] <config>
+
+NI LinuxRT Secured, Network-Attached Configuration utility.
+
+# Options
+-h, --help
+    Print this usage information and exit.
+-V, --version
+	Print this script's version information and exit.
+
+# Commands
+config, configure  Affect the SNAC configuration on this machine.
+
+# Returns
+$EX_OK    when the operation was successful.
+$EX_ERROR    when an unexpected error occurred.
+$EX_USAGE    when given invalid arguments.
+$EX_BAD_ENVIRONEMNT  when the execution environment is invalid.
+$EX_CHECK_FAILURE  when a configuration check fails.
+EOF
+}
+
+
+positionals=()
+while [ $# -ge 1 ]; do case "$1" in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	-V|--version)
+		print_version
+		exit 0
+		;;
+	-*|--*)
+		log ERROR "Invalid or unknown option \"$1\"."
+		exit 2
+		;;
+	*)
+		positionals+=($1)
+		shift
+		;;
+esac; done
+
+# If no comand is given, print usage and exit 2.
+if [ ${#positionals[@]} -lt 1 ]; then\
+	log ERROR "Missing required positional arguments.";
+	usage
+	exit 2
+fi
+
+# Execute the command
+command=${positionals[0]}
+case "$command" in
+	config|configure)
+		bash "${SCRIPT_ROOT}/../lib/nilrt-snac/configure-nilrt-snac"
+		exit $?
+		;;
+	*)
+		log ERROR Unrecognized command \"${command}\"
+		exit 2
+		;;
+esac
