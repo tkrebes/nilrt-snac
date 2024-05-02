@@ -1,0 +1,254 @@
+#!/bin/bash
+# SPDX-License-Identifier: BSD-3-Clause
+set -euo pipefail
+
+
+## CONSTANTS
+E_BAD_ENVIRONEMNT=128
+E_CHECK_FAILURE=129
+
+OPKG_CONF=/etc/opkg/snac.conf
+WIREGUARD_TOOLS_DEB='http://ftp.us.debian.org/debian/pool/main/w/wireguard/wireguard-tools_1.0.20210914-1+b2_amd64.deb'
+USBGUARD_SRC_URL="https://github.com/USBGuard/usbguard/releases/download/usbguard-1.1.2/usbguard-1.1.2.tar.gz"
+
+
+## FUNCTIONS
+
+check_euid_root() {
+	# Check that the effective UID of this bash script is root (UID 0). If not,
+	# exit with error 2.
+	if [ $(id -u) -ne 0 ]; then
+		log ERROR "this script must be run as root (uid 0)."
+		exit $E_BAD_ENVIRONEMNT
+	fi
+}
+
+# Check that iptables is available.
+# NOTE: The ip_tables kernel module is only loaded once the first call to iptables has been made, (inlcuding rule creation).
+check_iptables() {
+	log INFO Checking iptables configuration...
+	
+	log DEBUG Installing iptables...
+	opkg install iptables
+
+	# This call also ensures that the module gets loaded
+	log DEBUG Checking iptables user tools...
+	if ! iptables -L; then
+		echo ERROR iptables binary 
+		exit $E_CHECK_FAILURE
+	fi >/dev/null
+
+	# test that ip_tables is in lsmod
+	local modules=($(lsmod | tail --lines=+2 | awk '{print($1)}'))
+	if grep -qE 'ip_tables'; then
+		log DEBUG "check_iptables(): ip_tables module loaded."
+	else
+		log ERROR ip_tables module is not loaded.
+		exit $E_CHECK_FAILURE
+	fi <<<${modules[@]}
+}
+
+# Check that the script isn't executing within a safemode context
+check_runmode() {
+	if test -e /etc/natinst/safemode; then
+		log ERROR Script is executing in a safemode context.
+		exit $E_BAD_ENVIRONEMNT
+	fi
+}
+
+# Check that the script is running on NI LinuxRT
+check_nilrt() {
+	if grep -qE '^ID=nilrt$' /etc/os-release; then
+		return
+	else
+		log ERROR os-release:ID does not match NILRT. This script must only be run on NILRT systems.
+		exit $E_BAD_ENVIRONEMNT
+	fi
+}
+
+configure_ntp() {
+	log INFO Configuring NTP...
+	# As of NILRT 24.3, all the NTP packages are in the extra/ feed. :(
+	opkg update >/dev/null && opkg install ntp
+	# remove default server configurations
+	log DEBUG Switching ntp servers to US mil.
+	sed -i '/^server .*/d' /etc/ntp.conf
+	echo "server 0.us.pool.ntp.mil iburst maxpoll 16" >>/etc/ntp.conf
+	/etc/init.d/ntpd restart
+}
+
+configure_opkg() {
+	log INFO Configuring opkg...
+
+	echo "# NILRT SNAC configuration opkg runparts. Do not hand-edit." >"${OPKG_CONF}"
+	echo "option autoremove 1" >>"${OPKG_CONF}"
+	
+	log DEBUG Removing unsupported package feeds...
+	rm -fv /etc/opkg/NI-dist.conf
+	# TODO Uncomment this once we have moved all necessary packages into the core feeds.
+	#sed -i '/^src.*\/extra\/.*/d' /etc/opkg/base-feeds.conf
+
+	opkg update
+}
+
+configure_usbguard() {
+	log INFO Installing USBGuard...
+	mkdir -p /usr/local/src
+	rm -rf /usr/local/src/usbguard*
+	wget "${USBGUARD_SRC_URL}" -O - | tar xz -f - -C /usr/local/src
+	pushd /usr/local/src/usbguard*
+
+	opkg update >/dev/null && opkg install libqb-dev
+	./configure --with-crypto-library=openssl --with-bundled-catch --with-bundled-pegtl --without-dbus --without-polkit --prefix=/
+	make install
+	# TODO: make initscript
+	popd
+}
+
+configure_wireguard() {
+	log INFO Installing wireguard-tools...
+	opkg update >/dev/null && opkg install busybox  # contains wget
+	wget "${WIREGUARD_TOOLS_DEB}" -O ./wireguard-tools.deb
+	echo "arch amd64 15" >>"${OPKG_CONF}"
+	opkg install --force-reinstall ./wireguard-tools.deb
+	log INFO DONE. wireguard-tools "(wg)" is now installed.
+
+	# Install and setup wireguard
+	# TODO: key management?
+	log INFO Configuring wireguard...
+	ip link del dev wg0 || true  # its OK for the wg dev to not exist yet
+	ip link add dev wg0 type wireguard
+}
+
+install_cryptsetup() {
+	log INFO Installing cryptsetup...
+	opkg update >/dev/null && opkg install cryptsetup
+}
+
+# Rips niauth out of the system.
+remove_niauth() {
+	log INFO Removing NIAuth...
+	
+	# Manually remove the 'Essential' mark on NI-Auth and its siblings, so that they can be removed.
+	#trap "opkg update >/dev/null" EXIT
+
+	#sed -i '/Essential: yes/d' /var/lib/opkg/status
+	opkg remove --force-removal-of-essential-packages --force-depends ni-auth
+	passwd -d root
+	log DEBUG root account password deleted.
+
+	#opkg update >/dev/null  # undoes the remarking we just did
+	trap - EXIT
+}
+
+# Channels which are only printed when --verbose
+LOG_VERBOSEONLY_CHANNELS=()
+log() {
+	local log_level=$1
+	local log_msg="${@:2}"
+	if [[ "${LOG_VERBOSEONLY_CHANNELS[@]}" == *"$log_level"* \
+		&& "${verbose:-}" != true ]]; then
+		return
+	else
+		echo "${log_level}:" "$log_msg" >&2
+	fi
+}
+
+
+## CLI PARSING
+usage() {
+	cat <<EOF
+$(basename ${BASH_SOURCE}) [--help] [--verbose] \\
+    # TODO: argument docs here
+
+# TODO: Program Description here
+
+# Options
+-h, --help
+    Print this usage information and exit.
+-v, --verbose
+    Print all log channels during execution.
+
+# Positional Arguments
+
+# Environmentals
+
+# Returns
+EOF
+}
+
+
+positionals=()
+verbose=false
+
+while [ $# -ge 1 ]; do case "$1" in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	-v|--verbose)
+		verbose=true
+		shift
+		;;
+	-*|--*)
+		log ERROR "Invalid or unknown option \"$1\"."
+		exit 2
+		;;
+	*)
+		positionals+=($1)
+		shift
+		;;
+esac; done
+
+# TODO: Set minimum number of positional arguments here
+if [ ${#positionals[@]} -lt 0 ]; then
+	log ERROR "Missing required positional arguments.";
+	usage
+	exit 2
+fi
+# TODO: Parse positionals here
+
+
+## MAIN
+# TODO: remove after alpha testing
+log WARNING '!! THIS TOOL IS IN-DEVELOPMENT AND APPROPRIATE ONLY FOR DEVELOPER TESTING !!'
+log WARNING '!! Running this tool will irreversibly alter the state of your system.    !!'
+
+# runtime environment safety checks
+check_euid_root
+check_nilrt
+check_runmode
+
+
+WORKSPACE=$(mktemp -d --suffix=nilrt-snac)
+trap "test -e ${WORKSPACE} && rm -rfv ${WORKSPACE}" EXIT
+pushd ${WORKSPACE}
+
+configure_opkg
+
+remove_niauth
+
+configure_wireguard
+
+log INFO Checking that ip_tables is loaded...
+check_iptables
+
+log INFO Disabling console output...
+nirtcfg --set section="systemsettings",token="consoleout.enabled",value="False"
+# requires reboot to take effect ^. Can we get around this?
+
+log INFO Removing the X11 stack...
+opkg remove packagegroup-core-x11 packagegroup-ni-xfce
+opkg remove '*xfce4*-locale-ja*'  # where do these come from !?!
+
+#configure_usbguard   # TODO: doesn't work yet.
+
+install_cryptsetup
+
+configure_ntp
+
+popd
+echo ""  # Blank line
+echo "!! A reboot is now required to affect your system configuration. !!"
+echo "!! Login with user 'root' and no password.                       !!"
+exit 0
