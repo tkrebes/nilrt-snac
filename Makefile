@@ -7,14 +7,18 @@
 
 ## VARIABLES
 
+project = nilrt-snac
+
 # GNU directories
 prefix ?= /usr/local
 exec_prefix ?= $(prefix)
 bindir ?= $(exec_prefix)/bin
 
+datarootdir ?= $(prefix)/share
+
 datadir ?= $(datarootdir)
-datarootidr ?= $(prefix)/share
-libdir ?= $(exec_prefix)/lib
+docdir ?= $(datarootdir)/doc/$(project)
+libdir ?= $(exec_prefix)/lib/$(project)
 sbindir ?= $(exec_prefix)/sbin
 
 SRC_FILES = \
@@ -26,9 +30,17 @@ SRC_FILES = \
 all :
 	@echo "Nothing to build. All source files are architecture-independent."
 
-install : $(SRC_FILES)
+
+install : $(SRC_FILES) LICENSE README.md
 	mkdir -p $(sbindir)
 	install -o 0 -g 0 --mode=0755 src/configure-nilrt-snac $(sbindir)
 
+	mkdir -p $(docdir)
+	install --mode=0444 -t "$(docdir)" \
+		LICENSE \
+		README.md
+
+
 uninstall :
-	rm -v $(sbindir)/configure-nilrt-snac
+	rm -vf $(sbindir)/configure-nilrt-snac
+	rm -rvf $(docdir)
