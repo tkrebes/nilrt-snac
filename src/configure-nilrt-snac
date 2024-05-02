@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 set -euo pipefail
 
+SCRIPT_ROOT="$(realpath $(dirname ${BASH_SOURCE}))"
+source "${SCRIPT_ROOT}/util.sh"
 
 ## CONSTANTS
-E_BAD_ENVIRONEMNT=128
-E_CHECK_FAILURE=129
-
 OPKG_CONF=/etc/opkg/snac.conf
 WIREGUARD_TOOLS_DEB='http://ftp.us.debian.org/debian/pool/main/w/wireguard/wireguard-tools_1.0.20210914-1+b2_amd64.deb'
 USBGUARD_SRC_URL="https://github.com/USBGuard/usbguard/releases/download/usbguard-1.1.2/usbguard-1.1.2.tar.gz"
@@ -19,7 +18,7 @@ check_euid_root() {
 	# exit with error 2.
 	if [ $(id -u) -ne 0 ]; then
 		log ERROR "this script must be run as root (uid 0)."
-		exit $E_BAD_ENVIRONEMNT
+		exit $EX_BAD_ENVIRONEMNT
 	fi
 }
 
@@ -35,7 +34,7 @@ check_iptables() {
 	log DEBUG Checking iptables user tools...
 	if ! iptables -L; then
 		echo ERROR iptables binary 
-		exit $E_CHECK_FAILURE
+		exit $EX_CHECK_FAILURE
 	fi >/dev/null
 
 	# test that ip_tables is in lsmod
@@ -44,7 +43,7 @@ check_iptables() {
 		log DEBUG "check_iptables(): ip_tables module loaded."
 	else
 		log ERROR ip_tables module is not loaded.
-		exit $E_CHECK_FAILURE
+		exit $EX_CHECK_FAILURE
 	fi <<<${modules[@]}
 }
 
@@ -52,7 +51,7 @@ check_iptables() {
 check_runmode() {
 	if test -e /etc/natinst/safemode; then
 		log ERROR Script is executing in a safemode context.
-		exit $E_BAD_ENVIRONEMNT
+		exit $EX_BAD_ENVIRONEMNT
 	fi
 }
 
@@ -62,7 +61,7 @@ check_nilrt() {
 		return
 	else
 		log ERROR os-release:ID does not match NILRT. This script must only be run on NILRT systems.
-		exit $E_BAD_ENVIRONEMNT
+		exit $EX_BAD_ENVIRONEMNT
 	fi
 }
 
@@ -140,20 +139,6 @@ remove_niauth() {
 	#opkg update >/dev/null  # undoes the remarking we just did
 	trap - EXIT
 }
-
-# Channels which are only printed when --verbose
-LOG_VERBOSEONLY_CHANNELS=()
-log() {
-	local log_level=$1
-	local log_msg="${@:2}"
-	if [[ "${LOG_VERBOSEONLY_CHANNELS[@]}" == *"$log_level"* \
-		&& "${verbose:-}" != true ]]; then
-		return
-	else
-		echo "${log_level}:" "$log_msg" >&2
-	fi
-}
-
 
 ## CLI PARSING
 usage() {
