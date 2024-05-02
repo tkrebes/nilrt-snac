@@ -51,6 +51,7 @@ make uninstall
 ## Runtime Dependencies
 
 * `bash`
+* `util-linux.logger`
 
 ## CLI
 
