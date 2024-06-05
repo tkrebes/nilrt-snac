@@ -7,7 +7,7 @@ source "${SCRIPT_ROOT}/util.sh"
 
 ## CONSTANTS
 OPKG_CONF=/etc/opkg/snac.conf
-WIREGUARD_TOOLS_DEB='http://ftp.us.debian.org/debian/pool/main/w/wireguard/wireguard-tools_1.0.20210914-1+b2_amd64.deb'
+WIREGUARD_TOOLS_DEB='http://ftp.us.debian.org/debian/pool/main/w/wireguard/wireguard-tools_1.0.20210914-1+b1_amd64.deb'
 USBGUARD_SRC_URL="https://github.com/USBGuard/usbguard/releases/download/usbguard-1.1.2/usbguard-1.1.2.tar.gz"
 
 
