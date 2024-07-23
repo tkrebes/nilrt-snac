@@ -33,7 +33,7 @@ On a deployed NILRT system, in runmode...
 
 ```bash
 mkdir -p /usr/local/src
-wget 'https://github.com/amstewart/nilrt-snac/archive/refs/heads/master.tar.gz' -O - | tar xzf - -C /usr/local/src
+wget 'https://github.com/ni/nilrt-snac/archive/refs/heads/master.tar.gz' -O - | tar xzf - -C /usr/local/src
 cd /usr/local/src/nilrt-snac*
 make install  # prefix defaults to /usr/local
 ```
