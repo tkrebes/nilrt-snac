@@ -1,4 +1,4 @@
-# NILRT SNAC Tool
+# NILRT SNAC Configuration Tool
 
 The NI LinuxRT Secured, Network-Attached Controller (SNAC) tool is a utility for admins to put a NILRT system into the SNAC configuration.
 
