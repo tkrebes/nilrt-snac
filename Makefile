@@ -2,12 +2,12 @@
 
 .DEFAULT_GOAL := all
 
-.PHONY : all install uninstall
 SHELL = /bin/sh
 
 ## VARIABLES
 
-pkgname = nilrt-snac
+PACKAGE = nilrt-snac
+VERSION := $(shell git describe)
 
 # GNU directories
 prefix ?= /usr/local
@@ -26,31 +26,53 @@ SRC_FILES = \
 	src/nilrt-snac \
 	src/util.sh \
 
+DIST_FILES = \
+	$(SRC_FILES) \
+	LICENSE \
+	README.md \
+	Makefile \
 
-## PHONY TARGETS
+
+# PHONY TARGETS #
+#################
+
+.PHONY : all clean dist install uninstall
 
 all :
-	echo $(srcdir)
 	@echo "Nothing to build. All source files are architecture-independent."
 
 
-install : $(SRC_FILES) LICENSE README.md
+clean :
+	rm -f ./$(PACKAGE)-*.tar.gz
+
+
+dist : $(PACKAGE)-$(VERSION).tar.gz
+
+
+install : $(DIST_FILES)
 	mkdir -p $(DESTDIR)$(sbindir)
 	install -o 0 -g 0 --mode=0755 -t "$(DESTDIR)$(sbindir)" \
 		src/nilrt-snac
 
-	mkdir -p $(DESTDIR)$(libdir)/$(pkgname)
-	install --mode=0444 -t "$(DESTDIR)$(libdir)/$(pkgname)" \
+	mkdir -p $(DESTDIR)$(libdir)/$(PACKAGE)
+	install --mode=0444 -t "$(DESTDIR)$(libdir)/$(PACKAGE)" \
 		src/configure-nilrt-snac \
 		src/util.sh \
 
-	mkdir -p $(DESTDIR)$(docdir)/$(pkgname)
-	install --mode=0444 -t "$(DESTDIR)$(docdir)/$(pkgname)" \
+	mkdir -p $(DESTDIR)$(docdir)/$(PACKAGE)
+	install --mode=0444 -t "$(DESTDIR)$(docdir)/$(PACKAGE)" \
 		LICENSE \
 		README.md
 
 
 uninstall :
 	rm -vf $(DESTDIR)$(sbindir)/nilrt-snac
-	rm -rvf $(DESTDIR)$(libdir)/$(pkgname)
-	rm -rvf $(DESTDIR)$(docdir)/$(pkgname)
+	rm -rvf $(DESTDIR)$(libdir)/$(PACKAGE)
+	rm -rvf $(DESTDIR)$(docdir)/$(PACKAGE)
+
+
+# REAL TARGETS #
+################
+
+$(PACKAGE)-$(VERSION).tar.gz : $(DIST_FILES)
+	tar -czf $@ $(DIST_FILES)
