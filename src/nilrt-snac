@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-License-Identifier: MIT
 set -euo pipefail
 
 
@@ -14,7 +14,7 @@ print_version() {
 	cat <<-EOF
 	nilrt-snac 0.1
 	Copyright (C) 2024 NI (Emerson Electric)
-	License BSD-3-Clause: BSD 3-Clause "Revised" License <https://spdx.org/licenses/BSD-3-Clause.html
+	License MIT: MIT License <https://spdx.org/licenses/MIT.html>
 	This is free software: you are free to change and redistribute it.
 	There is NO WARRANTY, to the extent permitted by law.
 	EOF
