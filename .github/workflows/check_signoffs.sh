@@ -1,5 +1,5 @@
 # Check commits in this pull request for Signed-off-by trailers, and assure that
-# the committer has given his signoff.
+# the author has given his signoff.
 set -e
 
 # Get the base branch reference from the PR
@@ -18,10 +18,10 @@ for commit in $commits; do
 	
 	signoffs=$(git show --format="%(trailers:key=Signed-off-by,valueonly=true)" -s $commit)
 	#echo -e "\tsignoffs=${signoffs}"
-	committer=$(git show --format='%cN <%cE>' -s $commit)
-	#echo -e "\tcommitter=${committer}"
+	author=$(git show --format='%aN <%aE>' -s $commit)
+	#echo -e "\tauthor=${author}"
 	echo -n "Checking commit $commit..."
-	if ! grep -q "$committer"; then
+	if ! grep -q "$author"; then
 		test_signed_off_ok=false
 		echo " ERROR"
 		echo "ERROR: No signed-off-by in $(git show --format='%H %s' -s $commit)"
