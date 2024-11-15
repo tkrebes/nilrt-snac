@@ -13,6 +13,7 @@ class _X11Config(_BaseConfig):
     def configure(self, args: argparse.Namespace) -> None:
         print("Removing X11 stack...")
         self._opkg_helper.remove("packagegroup-core-x11")
+        self._opkg_helper.remove("packagegroup-ni-graphical")
         self._opkg_helper.remove("packagegroup-ni-xfce")
         self._opkg_helper.remove("*xfce4*-locale-ja*", ignore_installed=True)  # where do these come from !?!
 
@@ -22,6 +23,9 @@ class _X11Config(_BaseConfig):
         if self._opkg_helper.is_installed("packagegroup-core-x11"):
             valid = False
             logger.error("FOUND: packagegroup-core-x11 installed")
+        if self._opkg_helper.is_installed("packagegroup-ni-graphical"):
+            valid = False
+            logger.error("FOUND: packagegroup-ni-graphical installed")
         if self._opkg_helper.is_installed("packagegroup-ni-xfce"):
             valid = False
             logger.error("FOUND: packagegroup-ni-xfce installed")
