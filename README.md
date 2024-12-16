@@ -6,8 +6,7 @@ The NI LinuxRT Secured, Network-Attached Controller (SNAC) tool is a utility for
 # Design
 
 This tool...
-* is not (yet) officially supported by NI.
-* is only designed to work on NILRT versions 10.3 or later.
+* is only designed to work on NILRT versions 11.0 or later.
 	* `grep 'ID=' /etc/os-release`
 * only works in runmode. It will refuse to run from safemode.
 * requires a network connection to the internet.
