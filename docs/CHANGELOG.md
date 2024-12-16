@@ -8,23 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
 
-* The `configure` operation now disables WIFI interfaces. (#2, #13)
-* The `configure` operation now installs a `nilrt-snac-conflicts` meta-package, so that the tool can forbid re-installation of non-compliant packages. (#5)
-* The `configure` operation now installs `libpwquality` and enables password quality checks. (#11)
-* The `configure` operation now installs and configures `tmux` as the shell, including adding a 15 minute inactivity lock (#17)
+## [1.0.0] - 2024-12-16
+
+Release corresponding to the NILRT 11.0 (2025Q1) distribution release.
+
+
+### Added
 * Added a `verify` operation to non-destructively check that the system is still SNAC-compliant. (#15)
-* The `configure` operation installs `firewalld` with explicit control over both inbound and outbound
-  traffic. (#29)
-* `firewalld` is configured to permit selected NI service traffic over wireguard. (#50)
+* Added a system test fixture that sets up a wireguard tunnel between a Windows host and a SNAc device (#41).
+
 
 ### Changed
-
 * The dedicated wireguard interface is now called `wglv0` (#6).
-* The `configure` operation now installs `wireguard-tools` configuration files for `wglv0`, so it can persist between reboots (#6).
-* Most of the project's logic has been reimplemented as a python module. (#15).
-* The `configure` operation now removes `packagegroup-ni-graphical` in addition to `packagegroup-core-x11` and `packagegroup-ni-xfce`.
+* Most of the project's logic has been reimplemented as a python module (#15).
+* Many changes to the `nilrt-snac configure` actions.
+	* Disable WIFI interfaces. (#2, #13)
+	* Install a `nilrt-snac-conflicts` meta-package, so that the tool can forbid re-installation of non-compliant packages. (#5)
+	* Install `wireguard-tools` configuration files for `wglv0`, so it can persist between reboots (#6).
+	* Install `libpwquality` and enable password quality checks. (#11, #25, #30)
+	* Configure `sudo`. (#19)
+	* Remove `packagegroup-ni-graphical` in addition to `packagegroup-core-x11` and `packagegroup-ni-xfce` (#44).
+	* Install `wireguard-tools` from the NI IPK feed (#36, #39).
+	* Install and configure `tmux` as the shell, including adding a 15 minute inactivity lock (#17)
+	* Install `firewalld` with explicit control over both inbound and outbound traffic. (#29, #50)
+		* `firewalld` is configured to permit selected NI service traffic over wireguard. (#50)
+	* Create a valid `opasswd` file. (#35)
+	* Install the `ni-sysapi-cli` package, to enable sysapi communications (#43).
+	* Disable the graphical UI and console output (#45).
 
 
 ## [0.1.1] - 2024-08-19
