@@ -16,7 +16,7 @@ Release corresponding to the NILRT 11.0 (2025Q1) distribution release.
 
 ### Added
 * Added a `verify` operation to non-destructively check that the system is still SNAC-compliant. (#15)
-* Added a system test fixture that sets up a wireguard tunnel between a Windows host and a SNAc device (#41).
+* Added a system test fixture that sets up a wireguard tunnel between a Windows host and a SNAC device (#41).
 
 
 ### Changed
