@@ -7,16 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+
+## [2.0.0] - 2024-03-21
+
+Release corresponding to the LV 2025Q2 / NILRT 11.1 release.
+
 ### Added
 * Install and configure `auditd` in order to log system activites.
 * Install and configure `syslog-ng` in order to log system activites.
+* Added service definitons for SNAC-supported NI services to the firewalld configuration. (#50)
+* Added a `nilrt-snac verify` task for `ni-labview-realtime`. (#53)
+* Auditd is now installed and configured by `nilrt-snac configure`. (#57)
+* syslog-ng is now configured by `nilrt-snac configure`. (#59)
 
 ### Changed
 * Restricted write access to system logs in `/var/log` to System Maintainers (root) and Auditors via the `adm` group.
 * Restricted write access to `auditd.conf` to System Maintainers and Admins via the `sudo` group.
+* NTP traffic is now permitted on the public network, by default. (#50)
+* niroco traffic is now permitted on the work firewall zone. (#52)
 
 ### Fixed
 * Corrected the `verify` operation to ensure it accurately detects configuration changes.
+* Corrected the opkg config file permissions so that unprivileged users can perform read-only opkg operations. (#55)
+* Fixed a bug in the `verify` operation that could cause it to return a sucess, if config values have been changed to super-strings of their current value. (#61)
 
 
 ## [1.0.0] - 2024-12-16
