@@ -14,11 +14,20 @@ File **bugs** and **enhancement** requests to the canonical repo's [Issues track
 Send **security** concerns to the NI Security Team, per the [SECURITY.md](https://github.com/ni/nilrt-snac/blob/master/docs/SECURITY.md).
 
 
+## Development Dependencies
+
+### Debian 12
+```bash
+apt install binutils
+```
+
 ## Building
 
-`nilrt-snac` is implemented in shell scripts that do not require compilation or packaging; it does not require a build step.
+Build the project with `make all`.
 
-See the README for installation instructions.
+```bash
+make all
+```
 
 
 ## Testing
