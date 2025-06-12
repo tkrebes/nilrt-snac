@@ -1,19 +1,14 @@
 # NILRT SNAC Configuration Tool
 
-The NI LinuxRT Secured, Network-Attached Controller (SNAC) tool is a utility for admins to put a NILRT system into the SNAC configuration.
+The NILRT SNAC configuration tool is a utility that helps system administrators place their NI LinuxRT (NILRT) devices into a Secured, Network-Attached Configuration (SNAC).
 
 
 # Design
 
 This tool...
-* is only designed to work on NILRT versions 11.0 or later.
-	* `grep 'ID=' /etc/os-release`
 * only works in runmode. It will refuse to run from safemode.
-* requires a network connection to the internet.
-* requires access to the core NILRT package feeds.
+* requires a network connection to the NI IPK feeds server, or access to an offline feeds server.
 * can only be run as root.
-* installs some open source projects at runtime which are not officially supported by NI.
-	* USBGuard (from its canonical upstream GH repo)
 
 
 # Installation
@@ -21,7 +16,7 @@ This tool...
 
 ## Installation from the NILRT IPK Feeds
 
-On NILRT Base System Images 11.0 (2025Q1) and later, this project can be installed directly from the vendor's packaging.
+As of NILRT Base System Images 11.0 (2025Q1) and later, this project can be installed directly from the vendor's packaging.
 
 This is the preferred method of installation for users.
 
@@ -78,7 +73,8 @@ The tool has two primary modes of operation: `configure` and `verify`.
 
 ### Configure
 
-In 'configure' mode, the tool will **apply** the SNAC configuration to the NILRT system. This is a destructive operation that should only be run by a system maintainer during deployment.
+In 'configure' mode, the tool will **apply** the SNAC configuration to the NILRT system.
+This is a destructive operation that should only be run by a system maintainer during deployment.
 
 ```bash
 nilrt-snac configure
@@ -89,7 +85,8 @@ After the script completes successfully, you will be instructed to reboot your s
 
 ### Verify
 
-In 'verify' mode, the tool will **check** that the NILRT system is in the SNAC configuration, without modifying the system state. The operation will fail if any of the checks fail.
+In 'verify' mode, the tool will **check** that the NILRT system is in the SNAC configuration, without modifying the system state.
+The operation will fail if any of the checks fail.
 
 ```bash
 nilrt-snac verify
