@@ -9,7 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
-## [2.0.0] - 2024-03-21
+## [2.1.0] - 2025-06-12
+
+Release corresponding to the LV 2025Q3 / NILRT 11.2 release.
+
+### Changed
+* Syslog outbound traffic is now permitted on the firewall's 'work' zone. (#64)
+
+### Fixed
+* Fixed a bug in the auditd configuration where the service's initscript would not be registered with update-rc.d. (#63)
+* Fixed a bug in the auditd configuration that would cause an internal python error when trying to verify a system where the `auditd.conf` file does not exist. (#65)
+
+
+## [2.0.0] - 2025-03-21
 
 Release corresponding to the LV 2025Q2 / NILRT 11.1 release.
 
