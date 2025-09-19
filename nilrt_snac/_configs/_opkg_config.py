@@ -12,6 +12,7 @@ from nilrt_snac.opkg import OPKG_SNAC_CONF, opkg_helper
 
 class _OPKGConfig(_BaseConfig):
     def __init__(self):
+        super().__init__("opkg")
         self._opkg_helper = opkg_helper
 
     def configure(self, args: argparse.Namespace) -> None:
@@ -53,9 +54,7 @@ class _OPKGConfig(_BaseConfig):
             logger.error(f"MISSING: {OPKG_SNAC_CONF} not found")
         elif not snac_config_file.contains_exact("option autoremove 1"):
             valid = False
-            logger.error(
-                f"MISSING: 'option autoremove 1' not found in {snac_config_file.path}"
-            )
+            logger.error(f"MISSING: 'option autoremove 1' not found in {snac_config_file.path}")
         if base_feeds_config_file.contains("src.*/extra/.*"):
             valid = False
             logger.error(f"FOUND: 'src.*/extra/.*' found in {base_feeds_config_file.path}")

@@ -8,8 +8,10 @@ from nilrt_snac import logger
 
 
 class _GraphicalConfig(_BaseConfig):
-    """The graphical configuration for SNAC is to deconfigure the X11, embedded UI, and other components that are only useful when using the graphical UI.
-    """
+    """The graphical configuration for SNAC is to deconfigure the X11, embedded UI, and other components that are only useful when using the graphical UI."""
+
+    def __init__(self):
+        super().__init__("graphical")
 
     def configure(self, args: Namespace) -> None:
         print("Deconfiguring the graphical UI...")

@@ -8,8 +8,9 @@ from nilrt_snac.opkg import opkg_helper
 
 class _SyslogConfig(_BaseConfig):
     def __init__(self):
+        super().__init__("syslog")
         self._opkg_helper = opkg_helper
-        self.syslog_conf_path = '/etc/syslog-ng/syslog-ng.conf'
+        self.syslog_conf_path = "/etc/syslog-ng/syslog-ng.conf"
 
     def configure(self, args: argparse.Namespace) -> None:
         print("Configuring syslog-ng...")
@@ -22,11 +23,10 @@ class _SyslogConfig(_BaseConfig):
             self._opkg_helper.install("syslog-ng")
 
         # Enable persistent storage
-        _cmd('nirtcfg', '--set', 'section=SystemSettings,token=PersistentLogs.enabled,value="True"')
+        _cmd("nirtcfg", "--set", 'section=SystemSettings,token=PersistentLogs.enabled,value="True"')
 
         # Restart syslog-ng service
-        _cmd('/etc/init.d/syslog', 'restart')
-
+        _cmd("/etc/init.d/syslog", "restart")
 
     def verify(self, args: argparse.Namespace) -> bool:
         print("Verifying syslog-ng configuration...")
