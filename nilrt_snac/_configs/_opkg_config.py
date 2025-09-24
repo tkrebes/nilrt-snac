@@ -19,7 +19,6 @@ class _OPKGConfig(_BaseConfig):
         print("Configuring opkg...")
         snac_config_file = _ConfigFile(OPKG_SNAC_CONF)
         snac_config_file.chmod(0o644)
-        base_feeds_config_file = _ConfigFile("/etc/opkg/base-feeds.conf")
         dry_run: bool = args.dry_run
 
         if not snac_config_file.contains_exact("option autoremove 1"):
@@ -37,17 +36,12 @@ class _OPKGConfig(_BaseConfig):
             if not dry_run:
                 subprocess.run(["rm", "-fv", "/etc/opkg/NI-dist.conf"], check=True)
 
-        if base_feeds_config_file.contains("src.*/extra/.*"):
-            base_feeds_config_file.update("^src.*/extra/.*", "")
-
         snac_config_file.save(dry_run)
-        base_feeds_config_file.save(dry_run)
         self._opkg_helper.update()
 
     def verify(self, args: argparse.Namespace) -> bool:
         print("Verifying opkg configuration...")
         snac_config_file = _ConfigFile(OPKG_SNAC_CONF)
-        base_feeds_config_file = _ConfigFile("/etc/opkg/base-feeds.conf")
         valid = True
         if not snac_config_file.exists():
             valid = False
@@ -55,8 +49,7 @@ class _OPKGConfig(_BaseConfig):
         elif not snac_config_file.contains_exact("option autoremove 1"):
             valid = False
             logger.error(f"MISSING: 'option autoremove 1' not found in {snac_config_file.path}")
-        if base_feeds_config_file.contains("src.*/extra/.*"):
+        if pathlib.Path("/etc/opkg/NI-dist.conf").exists():
             valid = False
-            logger.error(f"FOUND: 'src.*/extra/.*' found in {base_feeds_config_file.path}")
-
+            logger.error("UNSUPPORTED: /etc/opkg/NI-dist.conf found")
         return valid

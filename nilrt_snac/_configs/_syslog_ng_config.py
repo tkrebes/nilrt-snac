@@ -15,18 +15,23 @@ class _SyslogConfig(_BaseConfig):
     def configure(self, args: argparse.Namespace) -> None:
         print("Configuring syslog-ng...")
         dry_run: bool = args.dry_run
-        if dry_run:
-            return
 
         # Check if syslog-ng is already installed
         if not self._opkg_helper.is_installed("syslog-ng"):
             self._opkg_helper.install("syslog-ng")
 
-        # Enable persistent storage
-        _cmd("nirtcfg", "--set", 'section=SystemSettings,token=PersistentLogs.enabled,value="True"')
+        if not dry_run:
+            # Enable persistent storage
+            logger.debug("Enabling persistent log storage...")
+            _cmd(
+                "nirtcfg",
+                "--set",
+                'section=SystemSettings,token=PersistentLogs.enabled,value="True"',
+            )
 
-        # Restart syslog-ng service
-        _cmd("/etc/init.d/syslog", "restart")
+            # Restart syslog-ng service
+            logger.debug("Restarting syslog-ng service...")
+            _cmd("/etc/init.d/syslog", "restart")
 
     def verify(self, args: argparse.Namespace) -> bool:
         print("Verifying syslog-ng configuration...")
